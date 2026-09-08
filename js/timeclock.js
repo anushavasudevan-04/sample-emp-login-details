@@ -1,0 +1,132 @@
+// "Time Clock" tab: HR selects an employee and records their clock in / clock out.
+
+const TimeClock = (() => {
+  let select, statusBox, noteInput, btnIn, btnOut, todayTableBody;
+
+  function init() {
+    select = document.getElementById('clockEmployeeSelect');
+    statusBox = document.getElementById('clockStatus');
+    noteInput = document.getElementById('clockNote');
+    btnIn = document.getElementById('btnClockIn');
+    btnOut = document.getElementById('btnClockOut');
+    todayTableBody = document.querySelector('#todayTable tbody');
+
+    select.addEventListener('change', renderStatus);
+    btnIn.addEventListener('click', handleClockIn);
+    btnOut.addEventListener('click', handleClockOut);
+
+    refresh();
+  }
+
+  function refresh() {
+    populateEmployeeSelect();
+    renderStatus();
+    renderTodayTable();
+  }
+
+  function populateEmployeeSelect() {
+    const employees = Store.getActiveEmployees();
+    const previous = select.value;
+    select.innerHTML = '';
+
+    if (employees.length === 0) {
+      select.innerHTML = '<option value="">No active employees</option>';
+      select.disabled = true;
+      return;
+    }
+
+    select.disabled = false;
+    select.innerHTML =
+      '<option value="">Select employee…</option>' +
+      employees
+        .map((e) => `<option value="${e.id}">${escapeHtml(e.name)}</option>`)
+        .join('');
+
+    if (previous && employees.some((e) => e.id === previous)) {
+      select.value = previous;
+    }
+  }
+
+  function renderStatus() {
+    const employeeId = select.value;
+    if (!employeeId) {
+      statusBox.innerHTML = '<p class="muted">Select an employee to see their status.</p>';
+      btnIn.disabled = true;
+      btnOut.disabled = true;
+      return;
+    }
+
+    const open = Store.getOpenEntry(employeeId);
+    if (open) {
+      statusBox.innerHTML = `<span class="status-in">Clocked in</span> since ${formatTimeOfDay(open.clockIn)}`;
+      btnIn.disabled = true;
+      btnOut.disabled = false;
+    } else {
+      statusBox.innerHTML = '<span class="status-out">Not clocked in</span>';
+      btnIn.disabled = false;
+      btnOut.disabled = true;
+    }
+  }
+
+  function handleClockIn() {
+    const employeeId = select.value;
+    if (!employeeId) return;
+    if (Store.getOpenEntry(employeeId)) {
+      showToast('Already clocked in.');
+      return;
+    }
+    Store.clockIn(employeeId, noteInput.value);
+    noteInput.value = '';
+    renderStatus();
+    renderTodayTable();
+    Employees.refreshDependents();
+    showToast('Clocked in.');
+  }
+
+  function handleClockOut() {
+    const employeeId = select.value;
+    if (!employeeId) return;
+    const open = Store.getOpenEntry(employeeId);
+    if (!open) {
+      showToast('This employee is not clocked in.');
+      return;
+    }
+    Store.clockOut(open.id, noteInput.value);
+    noteInput.value = '';
+    renderStatus();
+    renderTodayTable();
+    Employees.refreshDependents();
+    showToast('Clocked out.');
+  }
+
+  function renderTodayTable() {
+    const today = todayStr();
+    const entries = Store.getEntries()
+      .filter((e) => e.date === today)
+      .sort((a, b) => new Date(b.clockIn) - new Date(a.clockIn));
+
+    if (entries.length === 0) {
+      todayTableBody.innerHTML = '<tr><td colspan="5" class="muted">No activity yet today.</td></tr>';
+      return;
+    }
+
+    todayTableBody.innerHTML = entries
+      .map((e) => {
+        const emp = Store.getEmployee(e.employeeId);
+        const name = emp ? escapeHtml(emp.name) : '(removed employee)';
+        const hours = e.clockOut
+          ? formatHoursMinutes(minutesBetween(e.clockIn, e.clockOut))
+          : '<span class="badge badge-progress">In progress</span>';
+        return `<tr>
+          <td>${name}</td>
+          <td>${formatTimeOfDay(e.clockIn)}</td>
+          <td>${e.clockOut ? formatTimeOfDay(e.clockOut) : '—'}</td>
+          <td>${hours}</td>
+          <td>${escapeHtml(e.note || '')}</td>
+        </tr>`;
+      })
+      .join('');
+  }
+
+  return { init, refresh };
+})();
