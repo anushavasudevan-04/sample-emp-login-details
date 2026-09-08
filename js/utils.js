@@ -13,6 +13,11 @@ function todayStr() {
   return formatDate(new Date());
 }
 
+function nowTimeValue() {
+  const d = new Date();
+  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
 function parseDateOnly(dateStr) {
   return new Date(dateStr + 'T00:00:00');
 }

@@ -78,13 +78,15 @@ const Store = (() => {
     getOpenEntry(employeeId) {
       return state.entries.find((e) => e.employeeId === employeeId && !e.clockOut) || null;
     },
-    clockIn(employeeId, note) {
-      const now = new Date();
+    // `when` lets HR record a time other than right now (e.g. entering the
+    // punch after the fact). Defaults to the current time.
+    clockIn(employeeId, note, when) {
+      const at = when instanceof Date && !isNaN(when) ? when : new Date();
       const entry = {
         id: uid(),
         employeeId,
-        date: formatDate(now),
-        clockIn: now.toISOString(),
+        date: formatDate(at),
+        clockIn: at.toISOString(),
         clockOut: null,
         note: (note || '').trim(),
       };
@@ -92,10 +94,11 @@ const Store = (() => {
       save();
       return entry;
     },
-    clockOut(entryId, note) {
+    clockOut(entryId, note, when) {
       const entry = state.entries.find((e) => e.id === entryId);
       if (!entry) return null;
-      entry.clockOut = new Date().toISOString();
+      const at = when instanceof Date && !isNaN(when) ? when : new Date();
+      entry.clockOut = at.toISOString();
       if (note) entry.note = note.trim();
       save();
       return entry;

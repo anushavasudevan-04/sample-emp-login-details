@@ -1,20 +1,25 @@
 // "Time Clock" tab: HR selects an employee and records their clock in / clock out.
 
 const TimeClock = (() => {
-  let select, statusBox, noteInput, btnIn, btnOut, todayTableBody;
+  let select, statusBox, timeInput, noteInput, btnIn, btnOut, todayTableBody;
 
   function init() {
     select = document.getElementById('clockEmployeeSelect');
     statusBox = document.getElementById('clockStatus');
+    timeInput = document.getElementById('clockTime');
     noteInput = document.getElementById('clockNote');
     btnIn = document.getElementById('btnClockIn');
     btnOut = document.getElementById('btnClockOut');
     todayTableBody = document.querySelector('#todayTable tbody');
 
-    select.addEventListener('change', renderStatus);
+    select.addEventListener('change', () => {
+      resetTime();
+      renderStatus();
+    });
     btnIn.addEventListener('click', handleClockIn);
     btnOut.addEventListener('click', handleClockOut);
 
+    resetTime();
     refresh();
   }
 
@@ -22,6 +27,17 @@ const TimeClock = (() => {
     populateEmployeeSelect();
     renderStatus();
     renderTodayTable();
+  }
+
+  function resetTime() {
+    timeInput.value = nowTimeValue();
+  }
+
+  // Resolves the (editable) time field against today's date. Falls back to
+  // right now if it's ever left blank.
+  function getSelectedTime() {
+    const value = timeInput.value || nowTimeValue();
+    return new Date(combineDateTime(todayStr(), value));
   }
 
   function populateEmployeeSelect() {
@@ -75,8 +91,9 @@ const TimeClock = (() => {
       showToast('Already clocked in.');
       return;
     }
-    Store.clockIn(employeeId, noteInput.value);
+    Store.clockIn(employeeId, noteInput.value, getSelectedTime());
     noteInput.value = '';
+    resetTime();
     renderStatus();
     renderTodayTable();
     Employees.refreshDependents();
@@ -91,8 +108,14 @@ const TimeClock = (() => {
       showToast('This employee is not clocked in.');
       return;
     }
-    Store.clockOut(open.id, noteInput.value);
+    const at = getSelectedTime();
+    if (at <= new Date(open.clockIn)) {
+      showToast('Clock out time must be after the clock in time.');
+      return;
+    }
+    Store.clockOut(open.id, noteInput.value, at);
     noteInput.value = '';
+    resetTime();
     renderStatus();
     renderTodayTable();
     Employees.refreshDependents();
