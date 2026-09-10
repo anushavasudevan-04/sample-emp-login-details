@@ -91,6 +91,10 @@ const TimeClock = (() => {
       showToast('Already clocked in.');
       return;
     }
+    if (Store.hasEntryForDate(employeeId, todayStr())) {
+      showToast('This employee already has a time entry for today. Edit it from Time Entries instead.');
+      return;
+    }
     Store.clockIn(employeeId, noteInput.value, getSelectedTime());
     noteInput.value = '';
     resetTime();
@@ -109,7 +113,7 @@ const TimeClock = (() => {
       return;
     }
     const at = getSelectedTime();
-    if (at <= new Date(open.clockIn)) {
+    if (at < new Date(open.clockIn)) {
       showToast('Clock out time must be after the clock in time.');
       return;
     }

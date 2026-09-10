@@ -43,11 +43,12 @@ const Store = (() => {
     getEmployee(id) {
       return state.employees.find((e) => e.id === id) || null;
     },
-    addEmployee({ name, employeeCode, department }) {
+    addEmployee({ name, employeeCode, company, department }) {
       const emp = {
         id: uid(),
         name: name.trim(),
         employeeCode: (employeeCode || '').trim(),
+        company: (company || '').trim(),
         department: (department || '').trim(),
         active: true,
       };
@@ -78,14 +79,24 @@ const Store = (() => {
     getOpenEntry(employeeId) {
       return state.entries.find((e) => e.employeeId === employeeId && !e.clockOut) || null;
     },
+    // Only one entry per employee per day is allowed. `excludeId` lets a
+    // save-in-progress edit ignore its own existing entry.
+    hasEntryForDate(employeeId, date, excludeId) {
+      return state.entries.some(
+        (e) => e.employeeId === employeeId && e.date === date && e.id !== excludeId
+      );
+    },
     // `when` lets HR record a time other than right now (e.g. entering the
-    // punch after the fact). Defaults to the current time.
+    // punch after the fact). Defaults to the current time. Returns null if
+    // this employee already has an entry that day.
     clockIn(employeeId, note, when) {
       const at = when instanceof Date && !isNaN(when) ? when : new Date();
+      const date = formatDate(at);
+      if (this.hasEntryForDate(employeeId, date)) return null;
       const entry = {
         id: uid(),
         employeeId,
-        date: formatDate(at),
+        date,
         clockIn: at.toISOString(),
         clockOut: null,
         note: (note || '').trim(),

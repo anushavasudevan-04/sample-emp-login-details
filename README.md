@@ -13,10 +13,14 @@ Open `index.html` in a browser (or serve the folder with any static file
 server, e.g. `python3 -m http.server`).
 
 - **Time Clock** — pick an employee, clock them in/out, see today's activity.
-- **Employees** — add, edit, activate/deactivate, or remove employees.
+  Only one entry per employee per day is allowed.
+- **Employees** — add, edit, activate/deactivate, or remove employees, with
+  Name, Employee ID, Company, and Department. Also supports bulk import from
+  a CSV exported from Excel/Google Sheets (a template is downloadable from
+  the Employees tab).
 - **Time Entries** — browse/filter full history; add or fix entries manually.
 - **Reports** — generate Daily, Weekly, or Monthly summaries per employee,
-  with CSV export.
+  with CSV export. Late clock-ins (after 10:20 AM) are highlighted in red.
 
 ## Notes
 
