@@ -214,6 +214,8 @@
         <div class="field field-inline">
           <button id="btnRunReport" class="btn btn-primary">Generate Report</button>
           <button id="btnExportCsv" class="btn btn-secondary">Export CSV</button>
+          <button id="btnExportExcel" class="btn btn-secondary">Export Excel</button>
+          <button id="btnExportPdf" class="btn btn-secondary">Export PDF</button>
         </div>
       </div>
 
@@ -269,6 +271,9 @@
 </div>
 
 <div id="toast" class="toast" hidden></div>
+
+<!-- Populated right before window.print() for PDF export; hidden otherwise. -->
+<div id="printArea"></div>
 
 <script src="js/utils.js"></script>
 <script src="js/store.js"></script>
