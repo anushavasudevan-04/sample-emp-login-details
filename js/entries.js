@@ -85,7 +85,8 @@ const Entries = (() => {
         const hours = e.clockOut
           ? formatHoursMinutes(minutesBetween(e.clockIn, e.clockOut))
           : '<span class="badge badge-progress">In progress</span>';
-        return `<tr>
+        const rowClass = isLateClockIn(e.clockIn) ? ' class="row-late"' : '';
+        return `<tr${rowClass}>
           <td>${name}</td>
           <td>${formatDateHuman(e.date)}</td>
           <td>${formatTimeOfDay(e.clockIn)}</td>

@@ -46,6 +46,15 @@ function monthRange(monthStr) {
   return { start, end };
 }
 
+// Clock-ins after this time of day (minutes since midnight) count as late.
+const LATE_CLOCK_IN_MINUTES = 10 * 60 + 20; // 10:20 AM
+
+function isLateClockIn(iso) {
+  if (!iso) return false;
+  const d = new Date(iso);
+  return d.getHours() * 60 + d.getMinutes() > LATE_CLOCK_IN_MINUTES;
+}
+
 function formatTimeOfDay(iso) {
   if (!iso) return '';
   const d = new Date(iso);

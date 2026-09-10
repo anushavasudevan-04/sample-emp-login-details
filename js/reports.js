@@ -145,6 +145,7 @@ const Reports = (() => {
           formatHoursMinutes(totalMinutes),
           hasOpen ? 'In progress' : 'Complete',
         ],
+        late: isLateClockIn(list[0].clockIn),
       };
     });
 
@@ -228,7 +229,10 @@ const Reports = (() => {
     btnExport.disabled = false;
 
     tbody.innerHTML = report.rows
-      .map((r) => `<tr>${r.cells.map((c) => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`)
+      .map((r) => {
+        const rowClass = r.late ? ' class="row-late"' : '';
+        return `<tr${rowClass}>${r.cells.map((c) => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`;
+      })
       .join('');
 
     tfoot.innerHTML = `<tr>${report.footer.map((c) => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`;

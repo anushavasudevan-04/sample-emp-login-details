@@ -234,6 +234,14 @@ tfoot td {
   border-bottom: none;
 }
 
+/* Late clock-ins (after 10:20 AM) are shaded red across the row. */
+tbody tr.row-late td {
+  background: #fee2e2;
+}
+tbody tr.row-late td:first-child {
+  border-left: 3px solid var(--color-danger);
+}
+
 .badge {
   display: inline-block;
   padding: 2px 8px;
