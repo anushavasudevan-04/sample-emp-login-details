@@ -4,7 +4,7 @@ const Reports = (() => {
   let typeSelect, employeeFilter;
   let dailyWrap, weeklyWrap, monthlyWrap;
   let dailyInput, weeklyInput, monthlyInput;
-  let btnRun, btnExport, rangeLabel;
+  let btnRun, btnExportCsv, btnExportExcel, btnExportPdf, rangeLabel;
   let table, thead, tbody, tfoot, emptyMsg;
 
   let lastReport = null; // { filenamePrefix, headerRow, dataRows, footerRow }
@@ -22,7 +22,9 @@ const Reports = (() => {
     monthlyInput = document.getElementById('reportDateMonthly');
 
     btnRun = document.getElementById('btnRunReport');
-    btnExport = document.getElementById('btnExportCsv');
+    btnExportCsv = document.getElementById('btnExportCsv');
+    btnExportExcel = document.getElementById('btnExportExcel');
+    btnExportPdf = document.getElementById('btnExportPdf');
     rangeLabel = document.getElementById('reportRangeLabel');
 
     table = document.getElementById('reportTable');
@@ -45,7 +47,9 @@ const Reports = (() => {
     monthlyInput.addEventListener('change', generate);
     employeeFilter.addEventListener('change', generate);
     btnRun.addEventListener('click', generate);
-    btnExport.addEventListener('click', exportCsv);
+    btnExportCsv.addEventListener('click', exportCsv);
+    btnExportExcel.addEventListener('click', exportExcel);
+    btnExportPdf.addEventListener('click', exportPdf);
 
     populateEmployeeFilter();
     toggleDateInputs();
@@ -94,6 +98,11 @@ const Reports = (() => {
     return emp ? emp.name : '(removed employee)';
   }
 
+  function employeeCompany(id) {
+    const emp = Store.getEmployee(id);
+    return (emp && emp.company) || '—';
+  }
+
   function generate() {
     const range = getRange();
     rangeLabel.textContent = range.label;
@@ -129,7 +138,7 @@ const Reports = (() => {
       employeeName(a).localeCompare(employeeName(b))
     );
 
-    const header = ['Employee', 'Clock In', 'Clock Out', 'Total Hours', 'Status'];
+    const header = ['Employee', 'Company', 'Clock In', 'Clock Out', 'Total Hours', 'Status'];
     let grandTotal = 0;
 
     const rows = employeeIds.map((id) => {
@@ -140,6 +149,7 @@ const Reports = (() => {
       return {
         cells: [
           employeeName(id),
+          employeeCompany(id),
           list.map((e) => formatTimeOfDay(e.clockIn)).join(', '),
           list.map((e) => (e.clockOut ? formatTimeOfDay(e.clockOut) : '—')).join(', '),
           formatHoursMinutes(totalMinutes),
@@ -149,7 +159,7 @@ const Reports = (() => {
       };
     });
 
-    const footer = ['Total', '', '', formatHoursMinutes(grandTotal), ''];
+    const footer = ['Total', '', '', '', formatHoursMinutes(grandTotal), ''];
 
     return { filenamePrefix: `daily-report-${range.start}`, header, rows, footer };
   }
@@ -163,7 +173,7 @@ const Reports = (() => {
       employeeName(a).localeCompare(employeeName(b))
     );
 
-    const header = ['Employee', ...days.map((d) => `${formatWeekdayShort(d)} ${d.slice(5)}`), 'Week Total'];
+    const header = ['Employee', 'Company', ...days.map((d) => `${formatWeekdayShort(d)} ${d.slice(5)}`), 'Week Total'];
     const dayTotals = days.map(() => 0);
     let grandTotal = 0;
 
@@ -179,10 +189,10 @@ const Reports = (() => {
         return minutes > 0 ? formatHoursMinutes(minutes) : '—';
       });
       grandTotal += weekTotal;
-      return { cells: [employeeName(id), ...dayCells, formatHoursMinutes(weekTotal)] };
+      return { cells: [employeeName(id), employeeCompany(id), ...dayCells, formatHoursMinutes(weekTotal)] };
     });
 
-    const footer = ['Total', ...dayTotals.map((m) => (m > 0 ? formatHoursMinutes(m) : '—')), formatHoursMinutes(grandTotal)];
+    const footer = ['Total', '', ...dayTotals.map((m) => (m > 0 ? formatHoursMinutes(m) : '—')), formatHoursMinutes(grandTotal)];
 
     return { filenamePrefix: `weekly-report-${range.start}`, header, rows, footer };
   }
@@ -193,7 +203,7 @@ const Reports = (() => {
       employeeName(a).localeCompare(employeeName(b))
     );
 
-    const header = ['Employee', 'Days Worked', 'Total Hours', 'Avg Hours / Day'];
+    const header = ['Employee', 'Company', 'Days Worked', 'Total Hours', 'Avg Hours / Day'];
     let grandTotal = 0;
     let grandDays = 0;
 
@@ -205,11 +215,11 @@ const Reports = (() => {
       grandTotal += totalMinutes;
       grandDays += daysWorked;
       return {
-        cells: [employeeName(id), String(daysWorked), formatHoursMinutes(totalMinutes), formatHoursMinutes(avg)],
+        cells: [employeeName(id), employeeCompany(id), String(daysWorked), formatHoursMinutes(totalMinutes), formatHoursMinutes(avg)],
       };
     });
 
-    const footer = ['Total', String(grandDays), formatHoursMinutes(grandTotal), ''];
+    const footer = ['Total', '', String(grandDays), formatHoursMinutes(grandTotal), ''];
 
     return { filenamePrefix: `monthly-report-${range.start.slice(0, 7)}`, header, rows, footer };
   }
@@ -221,12 +231,16 @@ const Reports = (() => {
       tbody.innerHTML = '';
       tfoot.innerHTML = '';
       emptyMsg.hidden = false;
-      btnExport.disabled = true;
+      btnExportCsv.disabled = true;
+      btnExportExcel.disabled = true;
+      btnExportPdf.disabled = true;
       return;
     }
 
     emptyMsg.hidden = true;
-    btnExport.disabled = false;
+    btnExportCsv.disabled = false;
+    btnExportExcel.disabled = false;
+    btnExportPdf.disabled = false;
 
     tbody.innerHTML = report.rows
       .map((r) => {
@@ -242,6 +256,39 @@ const Reports = (() => {
     if (!lastReport || lastReport.rows.length === 0) return;
     const rows = [lastReport.header, ...lastReport.rows.map((r) => r.cells), lastReport.footer];
     downloadCsv(`${lastReport.filenamePrefix}.csv`, rows);
+  }
+
+  function reportTitle() {
+    const typeLabel = typeSelect.options[typeSelect.selectedIndex].text;
+    const employeeLabel = employeeFilter.options[employeeFilter.selectedIndex].text;
+    return `${typeLabel} Attendance Report — ${rangeLabel.textContent} — ${employeeLabel}`;
+  }
+
+  function reportTableHtml(boldFooter) {
+    const headerHtml = `<tr>${lastReport.header.map((h) => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`;
+    const bodyHtml = lastReport.rows
+      .map((r) => `<tr>${r.cells.map((c) => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`)
+      .join('');
+    const footerCells = lastReport.footer
+      .map((c) => (boldFooter ? `<td><b>${escapeHtml(c)}</b></td>` : `<td>${escapeHtml(c)}</td>`))
+      .join('');
+    return `<table border="1" cellspacing="0" cellpadding="4"><thead>${headerHtml}</thead><tbody>${bodyHtml}<tr>${footerCells}</tr></tbody></table>`;
+  }
+
+  function exportExcel() {
+    if (!lastReport || lastReport.rows.length === 0) return;
+    downloadExcel(`${lastReport.filenamePrefix}.xls`, reportTableHtml(true), reportTitle());
+  }
+
+  function exportPdf() {
+    if (!lastReport || lastReport.rows.length === 0) return;
+    const printArea = document.getElementById('printArea');
+    printArea.innerHTML = `
+      <h1>${escapeHtml(reportTitle())}</h1>
+      ${reportTableHtml(true)}
+      <p class="print-meta">Generated ${escapeHtml(new Date().toLocaleString())}</p>
+    `;
+    window.print();
   }
 
   return { init, populateEmployeeFilter, generate };

@@ -126,6 +126,32 @@ function downloadCsv(filename, rows) {
     .map((row) => row.map(csvEscape).join(','))
     .join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  triggerDownload(blob, filename);
+}
+
+// Wraps an HTML table as an Excel-native file (SpreadsheetML via the MS Office
+// HTML export convention) — opens directly in Excel with real cells/columns,
+// no external library needed.
+function downloadExcel(filename, tableHtml, sheetName) {
+  // Excel sheet names: max 31 chars, and no : \ / ? * [ ]
+  const safeName = (sheetName || 'Report').replace(/[:\\/?*[\]]/g, ' ').slice(0, 31).trim() || 'Report';
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<!--[if gte mso 9]><xml>
+<x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+<x:Name>${escapeHtml(safeName)}</x:Name>
+<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+<body>${tableHtml}</body>
+</html>`;
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+  triggerDownload(blob, filename);
+}
+
+function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
