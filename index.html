@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Time Tracking</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header__title">
+    <h1>HR Time Tracking</h1>
+    <p>Employee clock in / clock out and attendance reports</p>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab-btn is-active" data-tab="timeclock">Time Clock</button>
+    <button class="tab-btn" data-tab="employees">Employees</button>
+    <button class="tab-btn" data-tab="entries">Time Entries</button>
+    <button class="tab-btn" data-tab="reports">Reports</button>
+  </nav>
+</header>
+
+<main class="app-main">
+
+  <!-- TIME CLOCK -->
+  <section id="tab-timeclock" class="tab-panel is-active">
+    <div class="card clock-card">
+      <h2>Clock In / Clock Out</h2>
+      <div class="field">
+        <label for="clockEmployeeSelect">Employee</label>
+        <select id="clockEmployeeSelect"></select>
+      </div>
+
+      <div id="clockStatus" class="clock-status">
+        <p class="muted">Select your name to see your status.</p>
+      </div>
+
+      <div class="field">
+        <label for="clockTime">Time</label>
+        <input type="time" id="clockTime">
+        <p class="muted">Defaults to right now &mdash; edit this if you're entering the time after the fact.</p>
+      </div>
+
+      <div class="field">
+        <label for="clockNote">Note (optional)</label>
+        <input type="text" id="clockNote" placeholder="e.g. site visit, half-day, remote">
+      </div>
+
+      <div class="clock-actions">
+        <button id="btnClockIn" class="btn btn-primary" disabled>Clock In</button>
+        <button id="btnClockOut" class="btn btn-danger" disabled>Clock Out</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Today's Activity</h2>
+      <div class="table-wrap">
+        <table id="todayTable">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Clock In</th>
+              <th>Clock Out</th>
+              <th>Hours</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMPLOYEES -->
+  <section id="tab-employees" class="tab-panel">
+    <div class="card">
+      <h2>Add Employee</h2>
+      <form id="employeeForm" class="inline-form">
+        <div class="field">
+          <label for="empName">Full name</label>
+          <input type="text" id="empName" required placeholder="Jane Doe">
+        </div>
+        <div class="field">
+          <label for="empCode">Employee ID</label>
+          <input type="text" id="empCode" placeholder="EMP-001">
+        </div>
+        <div class="field">
+          <label for="empDept">Department</label>
+          <input type="text" id="empDept" placeholder="Sales">
+        </div>
+        <button type="submit" class="btn btn-primary">Add Employee</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Employees</h2>
+      <div class="table-wrap">
+        <table id="employeesTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Employee ID</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p id="employeesEmpty" class="muted" hidden>No employees yet. Add your first employee above.</p>
+    </div>
+  </section>
+
+  <!-- TIME ENTRIES -->
+  <section id="tab-entries" class="tab-panel">
+    <div class="card">
+      <div class="card-header-row">
+        <h2>Time Entries</h2>
+        <button id="btnAddEntry" class="btn btn-secondary">+ Add Manual Entry</button>
+      </div>
+
+      <div class="filters">
+        <div class="field">
+          <label for="entriesEmployeeFilter">Employee</label>
+          <select id="entriesEmployeeFilter">
+            <option value="">All employees</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="entriesFrom">From</label>
+          <input type="date" id="entriesFrom">
+        </div>
+        <div class="field">
+          <label for="entriesTo">To</label>
+          <input type="date" id="entriesTo">
+        </div>
+        <div class="field field-inline">
+          <button id="btnEntriesFilter" class="btn btn-secondary">Filter</button>
+          <button id="btnEntriesClear" class="btn btn-link">Clear</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="entriesTable">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Date</th>
+              <th>Clock In</th>
+              <th>Clock Out</th>
+              <th>Hours</th>
+              <th>Note</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p id="entriesEmpty" class="muted" hidden>No time entries found.</p>
+    </div>
+  </section>
+
+  <!-- REPORTS -->
+  <section id="tab-reports" class="tab-panel">
+    <div class="card">
+      <h2>Attendance Reports</h2>
+      <div class="filters">
+        <div class="field">
+          <label for="reportType">Report type</label>
+          <select id="reportType">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+        <div class="field" id="reportDateDailyWrap">
+          <label for="reportDateDaily">Date</label>
+          <input type="date" id="reportDateDaily">
+        </div>
+        <div class="field" id="reportDateWeeklyWrap" hidden>
+          <label for="reportDateWeekly">Any day in week</label>
+          <input type="date" id="reportDateWeekly">
+        </div>
+        <div class="field" id="reportDateMonthlyWrap" hidden>
+          <label for="reportDateMonthly">Month</label>
+          <input type="month" id="reportDateMonthly">
+        </div>
+        <div class="field">
+          <label for="reportEmployeeFilter">Employee</label>
+          <select id="reportEmployeeFilter">
+            <option value="">All employees</option>
+          </select>
+        </div>
+        <div class="field field-inline">
+          <button id="btnRunReport" class="btn btn-primary">Generate Report</button>
+          <button id="btnExportCsv" class="btn btn-secondary">Export CSV</button>
+        </div>
+      </div>
+
+      <p id="reportRangeLabel" class="muted"></p>
+
+      <div class="table-wrap">
+        <table id="reportTable">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <p id="reportEmpty" class="muted" hidden>No time entries for this period.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- Entry modal (add / edit) -->
+<div id="entryModalOverlay" class="modal-overlay" hidden>
+  <div class="modal">
+    <h2 id="entryModalTitle">Add Manual Entry</h2>
+    <form id="entryForm">
+      <input type="hidden" id="entryId">
+      <div class="field">
+        <label for="entryEmployee">Employee</label>
+        <select id="entryEmployee" required></select>
+      </div>
+      <div class="field">
+        <label for="entryDate">Date</label>
+        <input type="date" id="entryDate" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="entryClockIn">Clock in time</label>
+          <input type="time" id="entryClockIn" required>
+        </div>
+        <div class="field">
+          <label for="entryClockOut">Clock out time</label>
+          <input type="time" id="entryClockOut">
+        </div>
+      </div>
+      <div class="field">
+        <label for="entryNote">Note</label>
+        <input type="text" id="entryNote" placeholder="Optional note">
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="btnEntryCancel" class="btn btn-link">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Entry</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/utils.js"></script>
+<script src="js/store.js"></script>
+<script src="js/timeclock.js"></script>
+<script src="js/employees.js"></script>
+<script src="js/entries.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+:root {
+  --color-bg: #f4f6f8;
+  --color-card: #ffffff;
+  --color-border: #e1e5ea;
+  --color-text: #1f2937;
+  --color-muted: #6b7280;
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-danger: #dc2626;
+  --color-danger-dark: #b91c1c;
+  --color-secondary: #eef2f7;
+  --color-secondary-text: #1f2937;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.app-header {
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+  padding: 20px 24px 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.app-header__title h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.app-header__title p {
+  margin: 4px 0 16px;
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.tab-btn:hover {
+  color: var(--color-text);
+}
+
+.tab-btn.is-active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.app-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tab-panel { display: none; }
+.tab-panel.is-active { display: flex; flex-direction: column; gap: 20px; }
+
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.card h2 {
+  margin: 0 0 16px;
+  font-size: 16px;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-header-row h2 { margin: 0; }
+
+.clock-card { max-width: 480px; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.field input,
+.field select {
+  padding: 9px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--color-text);
+}
+
+.field input:focus,
+.field select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+.field-row .field { flex: 1; }
+
+.field-inline {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.inline-form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.inline-form .field { margin-bottom: 0; min-width: 180px; }
+
+.filters {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.filters .field { margin-bottom: 0; }
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary { background: var(--color-primary); color: #fff; }
+.btn-primary:hover { background: var(--color-primary-dark); }
+.btn-primary:disabled { background: #93b5f0; cursor: not-allowed; }
+
+.btn-danger { background: var(--color-danger); color: #fff; }
+.btn-danger:hover { background: var(--color-danger-dark); }
+.btn-danger:disabled { background: #eeaba5; cursor: not-allowed; }
+
+.btn-secondary { background: var(--color-secondary); color: var(--color-secondary-text); }
+.btn-secondary:hover { background: #e2e8f2; }
+
+.btn-link {
+  background: none;
+  color: var(--color-muted);
+  padding: 9px 6px;
+}
+.btn-link:hover { color: var(--color-text); text-decoration: underline; }
+
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+.clock-status {
+  background: var(--color-secondary);
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.clock-status .status-in { color: #15803d; font-weight: 700; }
+.clock-status .status-out { color: var(--color-muted); font-weight: 700; }
+
+.clock-actions { display: flex; gap: 10px; }
+
+.muted { color: var(--color-muted); font-size: 13px; }
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--color-border);
+  color: var(--color-muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+tbody td, tfoot td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+tfoot td {
+  font-weight: 700;
+  border-top: 2px solid var(--color-border);
+  border-bottom: none;
+}
+
+/* Late clock-ins (after 10:20 AM) are shaded red across the row. */
+tbody tr.row-late td {
+  background: #fee2e2;
+}
+tbody tr.row-late td:first-child {
+  border-left: 3px solid var(--color-danger);
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.badge-active { background: #dcfce7; color: #15803d; }
+.badge-inactive { background: #f1f5f9; color: #64748b; }
+.badge-progress { background: #fef3c7; color: #92400e; }
+
+.row-actions { display: flex; gap: 8px; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 22px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow);
+}
+
+.modal h2 { margin-top: 0; font-size: 16px; }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 640px) {
+  .app-main { padding: 16px; }
+  .tabs { overflow-x: auto; }
+  .inline-form, .filters { flex-direction: column; align-items: stretch; }
+  .inline-form .field, .filters .field { min-width: 0; }
+}
