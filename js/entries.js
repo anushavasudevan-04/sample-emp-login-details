@@ -177,6 +177,12 @@ const Entries = (() => {
     }
 
     const id = fEntryId.value;
+
+    if (Store.hasEntryForDate(employeeId, date, id || undefined)) {
+      showToast(`This employee already has a time entry for ${formatDateHuman(date)}.`);
+      return;
+    }
+
     const data = {
       employeeId,
       date,
